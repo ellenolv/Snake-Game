@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Jogo da cobrinha</title>
+</head>
+<body>
+    <!-- tabela em que o jogo vai funcionar -->
+
+    <canvas id="stage" width="600" height="600"></canvas> 
+
+
+
+    <!-- script do jogo -->
+    <script type="text/javascript">
+        
+        window.onload = function(){ //quando a janela carregar, vai executar a função
+ 
+            var stage = document.getElementById('stage'); //pega o elemento stage
+            var ctx = stage.getContext("2d"); //é dentro do context que será criado toda a parte visual do jogo
+            document.addEventListener("keydown", keyPush);
+            setInterval(game, 80); //a cada 80 milisegundos, vai chamar a função game
+ 
+            const vel = 1; //velocidade da cobrinha
+ 
+            var vx = vy = 0; //velocidade inicial da cobrinha
+            var px =10; //posição inicial da cobrinha no eixo x
+            var py = 15; //posição inicial da cobrinha no eixo y
+
+            var tp = 30; //tamanho da peça da cobrinha (tamanho do quadrado) 
+            var qp = 20; //quantidade de peças da cobrinha (quantidade de quadrados)
+            var ax=ay=15; //posição inicial da maçã no eixo x e y
+ 
+            var trail = []; //rastro da cobrinha (array) 
+            tail = 5; //tamanho inicial da cobrinha
+ 
+            function game(){ //função que vai desenhar o jogo
+                px += vx; //a posição x da cobrinha vai receber a velocidade x da cobrinha
+                py += vy; //a posição y da cobrinha vai receber a velocidade y da cobrinha
+
+                if (px <0) { //se a posição x da cobrinha for menor que 0, a posição x da cobrinha vai receber a quantidade de peças da cobrinha -1
+                    //ou seja, se a cobrinha passar do limite da tela, ela vai aparecer do outro lado
+                    px = qp-1;
+                }
+                if (px > qp-1) { //se a posição x da cobrinha for maior que a quantidade de peças da cobrinha -1, a posição x da cobrinha vai receber 0
+                    //ou seja, se a cobrinha passar do limite da tela, ela vai aparecer do outro lado
+                    px = 0;
+                }
+                if (py < 0) { //se a posição y da cobrinha for menor que 0, a posição y da cobrinha vai receber a quantidade de peças da cobrinha -1
+
+                    py = qp-1;
+                }
+                if (py > qp-1) { //se a posição y da cobrinha for maior que a quantidade de peças da cobrinha -1, a posição y da cobrinha vai receber 0
+                    py = 0;
+                }
+ 
+                ctx.fillStyle = "black"; //cor do fundo
+                ctx.fillRect(0,0, stage.width, stage.height); //desenha o retangulo do fundo
+ 
+                ctx.fillStyle = "red"; //cor da maçã
+                ctx.fillRect(ax*tp, ay*tp, tp,tp); //desenha a maçã no eixo x e y da maçã, com o tamanho da peça da cobrinha e a quantidade de peças da cobrinha
+ 
+                ctx.fillStyle = "gray"; //cor da cobrinha
+                for (var i = 0; i < trail.length; i++) { //for que vai percorrer o array do rastro da cobrinha  
+                    ctx.fillRect(trail[i].x*tp, trail[i].y*tp, tp-1,tp-1); //desenha o rastro da cobrinha no eixo x e y do rastro da cobrinha, com o tamanho da peça da cobrinha e a quantidade de peças da cobrinha
+                    //o -1 é para que o rastro da cobrinha não fique colado na maçã e não fique colado na parede da tela 
+                    
+                    if (trail[i].x == px && trail[i].y == py)//se a posição x e y do rastro da cobrinha for igual a posição x e y da cobrinha, a velocidade x e y da cobrinha vai receber 0 e o tamanho da cobrinha vai ser 5 novamente 
+                    //ou seja, se a cobrinha bater no seu próprio rastro, ela vai parar e o tamanho dela vai ser 5 novamente (game over)
+                    {
+                        vx = vy=0;
+                        tail =5;
+                    }
+                }
+ 
+                trail.push({x:px,y:py }) //adiciona um elemento no array do rastro da cobrinha, com a posição x e y da cobrinha 
+                //ou seja, a cada movimento da cobrinha, vai ser adicionado um elemento no array do rastro da cobrinha, com a posição x e y da cobrinha
+                while (trail.length > tail) { //enquanto o tamanho do array do rastro da cobrinha for maior que o tamanho da cobrinha, vai remover o primeiro elemento do array do rastro da cobrinha
+                    //ou seja, a cada movimento da cobrinha, vai ser adicionado um elemento no array do rastro da cobrinha, com a posição x e y da cobrinha e vai remover o primeiro elemento do array do rastro da cobrinha
+
+                    trail.shift(); //remove o primeiro elemento do array do rastro da cobrinha
+                }
+ 
+                if (ax==px && ay==py){//se a posição x e y da maçã for igual a posição x e y da cobrinha, a velocidade x e y da cobrinha vai receber 0 e o tamanho da cobrinha vai ser o tamanho da cobrinha + 1
+                    //ou seja, se a cobrinha comer a maçã, ela vai parar e o tamanho dela vai ser o tamanho dela + 1
+
+                    tail++; //tamanho da cobrinha vai ser o tamanho da cobrinha + 1
+                    ax = Math.floor(Math.random()*qp);//a posição x da maçã vai receber um número aleatório entre 0 e a quantidade de peças da cobrinha -1
+                    ay = Math.floor(Math.random()*qp); //a posição y da maçã vai receber um número aleatório entre 0 e a quantidade de peças da cobrinha -1
+                }
+ 
+            }
+ 
+            function keyPush(event){ //função que vai receber o evento do teclado
+ 
+                switch (event.keyCode) {//switch que vai receber o código da tecla que foi pressionada
+                    case 37: // Left    
+                        vx = -vel; //velocidade x da cobrinha vai receber a velocidade negativa
+                        vy = 0;
+                        break;
+                    case 38: // up
+                        vx = 0;
+                        vy = -vel;//velocidade y da cobrinha vai receber a velocidade negativa
+                        break;
+                    case 39: // right
+                        vx = vel;  //velocidade x da cobrinha vai receber a velocidade positiva
+                        vy = 0;
+                        break;
+                    case 40: // down
+                        vx = 0;
+                        vy = vel; //velocidade y da cobrinha vai receber a velocidade positiva
+                        break;          
+                    default:
+                        
+                        break;
+                }
+ 
+ 
+            }
+ 
+        }
+ 
+    </script>
+</body>
+</html>
